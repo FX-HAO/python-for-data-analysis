@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
+
 from pandas import DataFrame, Series
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -30,8 +31,25 @@ data = pd.merge(pd.merge(ratings, users), movies)
 
 print data.ix[0]
 
-data.to_csv('d:/dataframe.csv', index=False)
+mean_rating = data.pivot_table('rating', index='title', columns='gender', aggfunc='mean')
 
-mean_rating = data.pivot_table('rating', rows='title', cols='gender', aggfunc='mean')
+# print mean_rating[:5]
 
-mean_rating[:5]
+ratings_by_title = data.groupby('title').size()
+
+active_titles = ratings_by_title.index[ratings_by_title >= 250]
+
+mean_ratings = mean_rating.ix[active_titles]
+
+print mean_ratings
+
+top_female_ratings = mean_ratings.sort_index(by='F', ascending=False)
+
+mean_ratings['diff'] = mean_ratings['M'] - mean_ratings['F']
+
+rating_std_by_title = data.groupby('title')['rating'].std()
+
+rating_std_by_title = rating_std_by_title.ix[active_titles]
+
+# print rating_std_by_title.order(ascending=False)[:10]
+print rating_std_by_title
